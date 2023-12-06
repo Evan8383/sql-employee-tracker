@@ -14,15 +14,17 @@ INSERT INTO
     ('Sales Director', 150000, 3),
     ('FrontEnd Engineer', 85000, 4),
     ('BackEnd Engineer', 95000, 4),
-    ('Project Manager', 150000, 4);
+    ('Project Manager', 150000, 4),
+    ('Support Manager', 80000, 1);
 
 INSERT INTO
     employee (first_name, last_name, role_id, manager_id) VALUE 
     ('Archie', 'Atkins', 4, NULL),
     ('Edie', 'Harmon', 6, NULL),
     ('Harmony', 'Snow', 9, NULL),
-    ('Sean', 'Jenkins', 1, 3),
-    ('Isaac', 'Padilla', 2, 3),
+    ('Billy-Bong', 'Jones', 10, NULL),
+    ('Sean', 'Jenkins', 1, 4),
+    ('Isaac', 'Padilla', 2, 4),
     ('Peggy', 'Potts', 3, 1),
     ('Bruce', 'Combs', 5, 2),
     ('Jakob', 'Faulkner', 7, 3),
