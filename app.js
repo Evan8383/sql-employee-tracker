@@ -44,10 +44,10 @@ const handleSelectedFunction = (selectedFunction) => {
             viewAllDepartments();
             break;
         case 'View all roles':
-            getSelectedFunction();
+            viewAllRoles();
             break;
         case 'View all employees':
-            getSelectedFunction();
+            viewAllEmployees();
             break;
         case 'Add a department':
             getSelectedFunction();
@@ -70,6 +70,16 @@ const viewAllDepartments = async () => {
     const [results, info] = await db.query('SELECT * FROM department')
     console.table(results)
     getSelectedFunction();
-}
+};
+const viewAllRoles = async () => {
+    const [results, info] = await db.query('SELECT * FROM role')
+    console.table(results)
+    getSelectedFunction();
+};
+const viewAllEmployees = async () => {
+    const [results, info] = await db.query('SELECT * FROM employee')
+    console.table(results)
+    getSelectedFunction();
+};
 
 getSelectedFunction()
