@@ -34,7 +34,7 @@ const dbFunctions = [
 
 const showWelcome = () => {
     console.log('=====================================================================================')
-    console.log('                               '+'Internal Employee Tool')
+    console.log('                               ' + 'Internal Employee Tool')
     console.log('=====================================================================================')
 };
 
@@ -89,6 +89,25 @@ const viewAllEmployees = async () => {
     console.table(results)
     getSelectedFunction();
 };
+
+const addNewDepartment = async () => {
+    const questions = [
+        {
+            message: 'Enter the name of the new department:',
+            type: 'input',
+            name: 'newDepartmentName'
+            // Add a validate function later
+        }
+    ]
+    const userInput = await inquirer.prompt(questions)
+    const { newDepartmentName } = userInput
+    await db.query('INSERT INTO department (name) VALUES (?)', newDepartmentName)
+    console.log('')
+    console.log(`${newDepartmentName} has been added as a department.`)
+    console.log('')
+    
+    getSelectedFunction();
+}
 
 showWelcome();
 getSelectedFunction();
