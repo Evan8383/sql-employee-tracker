@@ -32,11 +32,17 @@ const dbFunctions = [
     }
 ];
 
+const showWelcome = () => {
+    console.log('=====================================================================================')
+    console.log('                               '+'Internal Employee Tool')
+    console.log('=====================================================================================')
+};
+
 const getSelectedFunction = async () => {
     const data = await inquirer.prompt(dbFunctions)
     const { selectedFunction } = data
     handleSelectedFunction(selectedFunction)
-}
+};
 
 const handleSelectedFunction = (selectedFunction) => {
     switch (selectedFunction) {
@@ -50,36 +56,39 @@ const handleSelectedFunction = (selectedFunction) => {
             viewAllEmployees();
             break;
         case 'Add a department':
-            getSelectedFunction();
+            addNewDepartment();
             break;
         case 'Add a role':
-            getSelectedFunction();
+            addNewRole();
             break;
         case 'Add an employee':
-            getSelectedFunction();
+            addNewEmployee();
             break;
         case 'Update an employee role':
-            getSelectedFunction();
+            updateEmployeeRole();
             break;
         case 'Exit':
             process.exit();
     }
-}
+};
 
 const viewAllDepartments = async () => {
-    const [results, info] = await db.query('SELECT * FROM department')
+    const [results, info] = await db.query('SELECT name AS "Department Name" FROM department')
     console.table(results)
     getSelectedFunction();
 };
+
 const viewAllRoles = async () => {
     const [results, info] = await db.query('SELECT * FROM role')
     console.table(results)
     getSelectedFunction();
 };
+
 const viewAllEmployees = async () => {
     const [results, info] = await db.query('SELECT * FROM employee')
     console.table(results)
     getSelectedFunction();
 };
 
-getSelectedFunction()
+showWelcome();
+getSelectedFunction();
