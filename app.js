@@ -112,13 +112,32 @@ const addNewDepartment = async () => {
 const getListOfCurrentDepartments = async () => {
   const [currentDepartments, info] = await db.query('SELECT * FROM department')
   const departmentNames = currentDepartments.map(name => name.name)
-  return departmentNames
+  return departmentNames;
 };
 
+const getListOfCurrentRoles = async () => {
+  const [currentRoles, info] = await db.query('SELECT * FROM role')
+  const roleNames = currentRoles.map(name => name.title)
+  return roleNames;
+};
+
+const getListOfCurrentManagers = async () => {
+  const [currentManagers, info] = await db.query('SELECT * FROM employee WHERE manager_id IS NULL')
+  const managerNames = currentManagers.map(name => name.first_name)
+  managerNames.unshift('No Manager')
+  return managerNames;
+}
+
 const getDepartmentId = async (department) => {
-  const [result, info] = await db.query('SELECT id FROM department WHERE name=?', department)
-  const { id: departmentId } = result[0]
+  const [results, info] = await db.query('SELECT id FROM department WHERE name=?', department)
+  const { id: departmentId } = results[0]
   return departmentId
+};
+
+const getRoleId = async (role) => {
+  const [results, info] = await db.query('SELECT id FROM role WHERE title=?', role)
+  const {id: roleId} = results[0]
+  return roleId
 };
 
 const addNewRole = async () => {
@@ -154,7 +173,40 @@ const addNewRole = async () => {
   promptUser();
 };
 
-
+const addNewEmployee = async () => {
+  const questions = [
+    {
+      message: "Enter the employees first name:",
+      type: "input",
+      name: "newEmployeeFirstName"
+    },
+    {
+      message: "Enter the employees last name:",
+      type: "input",
+      name: "newEmployeeLastName"
+    },
+    {
+      message: "Select the employees role:",
+      type: "list",
+      name: "newEmployeeRole",
+      choices: getListOfCurrentRoles
+    },
+    {
+      message: `Select the new employees manager`,
+      type: "list",
+      name: "newEmployeeManager",
+      choices: getListOfCurrentManagers
+    }
+  ]
+  const userInput = await inquirer.prompt(questions)
+  const { newEmployeeFirstName, newEmployeeLastName, newEmployeeRole, newEmployeeManager } = userInput
+  if (newEmployeeManager === 'No Manager'){
+    newEmployeeManager = ''
+  }
+  // const results = await db.query('INSET INTO employee')
+  console.log(userInput)
+  promptUser();
+};
 
 showWelcome();
 promptUser();
