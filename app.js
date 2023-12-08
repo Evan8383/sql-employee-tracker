@@ -115,6 +115,12 @@ const getListOfCurrentDepartments = async () => {
   return departmentNames
 };
 
+const getDepartmentId = async (department) => {
+  const [result, info] = await db.query('SELECT id FROM department WHERE name=?', department)
+  const { id: departmentId } = result[0]
+  return departmentId
+};
+
 const addNewRole = async () => {
   const questions = [
     {
@@ -139,10 +145,8 @@ const addNewRole = async () => {
   const userInput = await inquirer.prompt(questions)
   const { newTitleName, newRoleSalary, newRoleDepartment } = userInput
 
-  const [result, info] = await db.query('SELECT id FROM department WHERE name=?', newRoleDepartment)
-  const { id: departmentId } = result[0]
   await db.query('INSERT INTO role (title, salary, department_id) VALUES (?,?,?)',
-    [newTitleName, newRoleSalary, departmentId])
+    [newTitleName, newRoleSalary, await getDepartmentId(newRoleDepartment)])
   console.log('')
   console.table(`${newTitleName} has been added as a role.`)
   console.log('')
