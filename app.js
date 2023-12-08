@@ -109,24 +109,48 @@ const addNewDepartment = async () => {
   promptUser();
 };
 
+const getListOfCurrentDepartments = async () => {
+  const [currentDepartments, info] = await db.query('SELECT * FROM department')
+  const departmentNames = currentDepartments.map(name => name.name)
+  return departmentNames
+};
+
 const addNewRole = async () => {
   const questions = [
     {
-      message: 'Enter the name of the new role:',
+      message: 'Enter the title of the new role:',
       type: 'input',
-      name: 'newRoleName'
+      name: 'newTitleName'
       // Add a validate function later
+    },
+    {
+      message: 'Enter the salary for the new role as an integer:',
+      type: 'input',
+      name: 'newRoleSalary'
+    },
+    {
+      message: 'Select the department the new role will be apart of:',
+      type: 'list',
+      name: 'newRoleDepartment',
+      choices: getListOfCurrentDepartments
     }
+
   ]
   const userInput = await inquirer.prompt(questions)
-  const { newRoleName } = userInput
-  await db.query('INSERT INTO department (name) VALUES (?)', newRoleName)
+  const { newTitleName, newRoleSalary, newRoleDepartment } = userInput
+
+  const [result, info] = await db.query('SELECT id FROM department WHERE name=?', newRoleDepartment)
+  const { id: departmentId } = result[0]
+  await db.query('INSERT INTO role (title, salary, department_id) VALUES (?,?,?)',
+    [newTitleName, newRoleSalary, departmentId])
   console.log('')
-  console.log(`${newRoleName} has been added as a department.`)
+  console.table(`${newTitleName} has been added as a role.`)
   console.log('')
 
   promptUser();
 };
+
+
 
 showWelcome();
 promptUser();
