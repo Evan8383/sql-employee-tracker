@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const ui = new inquirer.ui.BottomBar();
 
+// DATABASE CONNECTION
 const db = mysql.createConnection(
   {
     host: 'localhost',
@@ -14,6 +14,7 @@ const db = mysql.createConnection(
   console.log(`Connected to the courses_db database.`)
 ).promise();
 
+// ARRAY OF INQUIRER PROMPTS
 const dbFunctions = [
   {
     name: 'selectedFunction',
@@ -32,18 +33,19 @@ const dbFunctions = [
   }
 ];
 
+// FUNCTION TO PRINT WELCOME LOGO
 const showWelcome = () => {
   console.log('=====================================================================================')
   console.log('                               ' + 'Internal Employee Tool')
   console.log('=====================================================================================')
 };
 
+// CORE APP FUNCTIONALITY
 const promptUser = async () => {
   const data = await inquirer.prompt(dbFunctions)
   const { selectedFunction } = data
   handleSelectedFunction(selectedFunction)
 };
-
 const handleSelectedFunction = (selectedFunction) => {
   switch (selectedFunction) {
     case 'View all departments':
@@ -72,24 +74,24 @@ const handleSelectedFunction = (selectedFunction) => {
   }
 };
 
+// GET ALL QUERIES
 const viewAllDepartments = async () => {
   const [results, info] = await db.query('SELECT name AS "Department Name" FROM department')
   console.table(results)
   promptUser();
 };
-
 const viewAllRoles = async () => {
   const [results, info] = await db.query('SELECT * FROM role')
   console.table(results)
   promptUser();
 };
-
 const viewAllEmployees = async () => {
   const [results, info] = await db.query('SELECT * FROM employee')
   console.table(results)
   promptUser();
 };
 
+// INSERT FUNCTIONS
 const addNewDepartment = async () => {
   const questions = [
     {
@@ -108,38 +110,6 @@ const addNewDepartment = async () => {
 
   promptUser();
 };
-
-const getListOfCurrentDepartments = async () => {
-  const [currentDepartments, info] = await db.query('SELECT * FROM department')
-  const departmentNames = currentDepartments.map(name => name.name)
-  return departmentNames;
-};
-
-const getListOfCurrentRoles = async () => {
-  const [currentRoles, info] = await db.query('SELECT * FROM role')
-  const roleNames = currentRoles.map(name => name.title)
-  return roleNames;
-};
-
-const getListOfCurrentManagers = async () => {
-  const [currentManagers, info] = await db.query('SELECT * FROM employee WHERE manager_id IS NULL')
-  const managerNames = currentManagers.map(name => name.first_name)
-  managerNames.unshift('No Manager')
-  return managerNames;
-}
-
-const getDepartmentId = async (department) => {
-  const [results, info] = await db.query('SELECT id FROM department WHERE name=?', department)
-  const { id: departmentId } = results[0]
-  return departmentId
-};
-
-const getRoleId = async (role) => {
-  const [results, info] = await db.query('SELECT id FROM role WHERE title=?', role)
-  const {id: roleId} = results[0]
-  return roleId
-};
-
 const addNewRole = async () => {
   const questions = [
     {
@@ -172,7 +142,6 @@ const addNewRole = async () => {
 
   promptUser();
 };
-
 const addNewEmployee = async () => {
   const questions = [
     {
@@ -200,13 +169,85 @@ const addNewEmployee = async () => {
   ]
   const userInput = await inquirer.prompt(questions)
   const { newEmployeeFirstName, newEmployeeLastName, newEmployeeRole, newEmployeeManager } = userInput
-  if (newEmployeeManager === 'No Manager'){
-    newEmployeeManager = ''
+  try {
+    if (newEmployeeManager === 'No Manager') {
+      await db.query('INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)',
+        [newEmployeeFirstName, newEmployeeLastName, await getRoleId(newEmployeeRole)])
+    } else {
+      await db.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)',
+        [newEmployeeFirstName, newEmployeeLastName, await getRoleId(newEmployeeRole), await getEmployeeId(newEmployeeManager)])
+    }
+    viewAllEmployees();
+  } catch (err) {
+    console.error(err)
+    promptUser();
   }
-  // const results = await db.query('INSET INTO employee')
-  console.log(userInput)
+};
+
+// UPDATE FUNCTIONS
+const updateEmployeeRole = async () => {
+  const questions = [
+    {
+      message: 'Select the employee you would like to update:',
+      type: 'list',
+      name: 'employeeToUpdate',
+      choices: getListOfCurrentEmployees
+    },
+    {
+      message: 'Select the employees new role:',
+      type: 'list',
+      name: 'employeeNewRole',
+      choices: getListOfCurrentRoles
+    }
+  ]
+  const userInput = await inquirer.prompt(questions)
+  const { employeeToUpdate, employeeNewRole } = userInput
+  await db.query('UPDATE employee SET role_id=? WHERE id=?',
+    [await getRoleId(employeeNewRole), await getEmployeeId(employeeToUpdate)])
+  console.table(`Updated ${employeeToUpdate}'s role.`)
   promptUser();
 };
+
+// HELPER FUNCTIONS TO CREATE ARRAYS FROM TABLE DATA
+const getListOfCurrentDepartments = async () => {
+  const [currentDepartments, info] = await db.query('SELECT * FROM department')
+  const departmentNames = currentDepartments.map(name => name.name)
+  return departmentNames;
+};
+const getListOfCurrentRoles = async () => {
+  const [currentRoles, info] = await db.query('SELECT * FROM role')
+  const roleNames = currentRoles.map(name => name.title)
+  return roleNames;
+};
+const getListOfCurrentManagers = async () => {
+  const [currentManagers, info] = await db.query('SELECT * FROM employee WHERE manager_id IS NULL')
+  const managerNames = currentManagers.map(name => name.first_name)
+  managerNames.unshift('No Manager')
+  return managerNames;
+};
+const getListOfCurrentEmployees = async () => {
+  const [results, info] = await db.query('SELECT first_name FROM employee')
+  const employeeNames = results.map(name => name.first_name)
+  return employeeNames
+};
+
+// HELPER FUNCTIONS TO GET IDs INTEGER VALUE 
+const getDepartmentId = async (department) => {
+  const [results, info] = await db.query('SELECT id FROM department WHERE name=?', department)
+  const { id: departmentId } = results[0]
+  return departmentId
+};
+const getRoleId = async (role) => {
+  const [results, info] = await db.query('SELECT id FROM role WHERE title=?', role)
+  const { id: roleId } = results[0]
+  return roleId;
+};
+const getEmployeeId = async (employee) => {
+  const [results, info] = await db.query('SELECT id FROM employee WHERE first_name=?', employee)
+  const { id } = results[0]
+  return id;
+};
+
 
 showWelcome();
 promptUser();
