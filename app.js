@@ -76,17 +76,17 @@ const handleSelectedFunction = (selectedFunction) => {
 
 // GET ALL QUERIES
 const viewAllDepartments = async () => {
-  const [results, info] = await db.query('SELECT name AS "Department Name" FROM department')
+  const [results, info] = await db.query('SELECT * FROM department')
   console.table(results)
   promptUser();
 };
 const viewAllRoles = async () => {
-  const [results, info] = await db.query('SELECT * FROM role')
+  const [results, info] = await db.query('SELECT role.id, title, department.name, salary FROM role INNER JOIN department ON department_id=department.id')
   console.table(results)
   promptUser();
 };
 const viewAllEmployees = async () => {
-  const [results, info] = await db.query('SELECT * FROM employee')
+  const [results, info] = await db.query('SELECT e.id, e.first_name, e.last_name, role.title, department.name, role.salary, m.first_name AS manager FROM employee e LEFT JOIN role ON role_id=role.id LEFT JOIN department on role.department_id=department.id LEFT JOIN employee m ON e.manager_id = m.id ORDER BY e.last_name ASC')
   console.table(results)
   promptUser();
 };
