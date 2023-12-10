@@ -83,7 +83,7 @@ const handleSelectedFunction = (selectedFunction) => {
 const viewAllDepartments = async () => {
   console.clear();
   try {
-    const [results, info] = await db.query('SELECT * FROM department')
+    const [results, info] = await db.query('SELECT id, name AS Department FROM department')
     console.clear();
     console.table(results)
     promptUser();
@@ -95,7 +95,7 @@ const viewAllDepartments = async () => {
 const viewAllRoles = async () => {
   console.clear();
   try {
-    const [results, info] = await db.query('SELECT role.id, title, department.name, salary FROM role INNER JOIN department ON department_id=department.id')
+    const [results, info] = await db.query('SELECT role.id, title AS Title, department.name AS Department, salary FROM role INNER JOIN department ON department_id=department.id')
     console.clear();
     console.table(results)
     promptUser();
@@ -107,7 +107,7 @@ const viewAllRoles = async () => {
 const viewAllEmployees = async () => {
   console.clear();
   try {
-    const [results, info] = await db.query('SELECT e.id, e.first_name, e.last_name, role.title, department.name, role.salary, m.first_name AS manager FROM employee e LEFT JOIN role ON role_id=role.id LEFT JOIN department on role.department_id=department.id LEFT JOIN employee m ON e.manager_id = m.id ORDER BY e.last_name ASC')
+    const [results, info] = await db.query('SELECT e.id, e.first_name, e.last_name, role.title AS Title, department.name AS Department, role.salary, m.first_name AS Manager FROM employee e LEFT JOIN role ON role_id=role.id LEFT JOIN department on role.department_id=department.id LEFT JOIN employee m ON e.manager_id = m.id ORDER BY e.last_name ASC')
     console.clear();
     console.table(results)
     promptUser();
@@ -327,7 +327,6 @@ const getEmployeeId = async (employee) => {
     console.error(err)
   }
 };
-
 
 showWelcome();
 promptUser();
