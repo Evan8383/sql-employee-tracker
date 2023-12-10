@@ -36,7 +36,9 @@ const dbFunctions = [
 // FUNCTION TO PRINT WELCOME LOGO
 const showWelcome = () => {
   console.log('=====================================================================================')
-  console.log('                               ' + 'Internal Employee Tool')
+  console.log('=                                                                                   =')
+  console.log('=                               ' + 'Internal Employee Tool                              =')
+  console.log('=                                                                                   =')
   console.log('=====================================================================================')
 };
 
@@ -107,7 +109,7 @@ const viewAllRoles = async () => {
 const viewAllEmployees = async () => {
   console.clear();
   try {
-    const [results, info] = await db.query('SELECT e.id, e.first_name, e.last_name, role.title AS Title, department.name AS Department, role.salary, m.first_name AS Manager FROM employee e LEFT JOIN role ON role_id=role.id LEFT JOIN department on role.department_id=department.id LEFT JOIN employee m ON e.manager_id = m.id ORDER BY e.last_name ASC')
+    const [results, info] = await db.query('SELECT e.id, e.first_name, e.last_name, role.title AS Title, department.name AS Department, role.salary, m.first_name AS Manager FROM employee e LEFT JOIN role ON role_id=role.id LEFT JOIN department on role.department_id=department.id LEFT JOIN employee m ON e.manager_id = m.id')
     console.clear();
     console.table(results)
     promptUser();
@@ -282,7 +284,7 @@ const getListOfCurrentRoles = async () => {
 const getListOfCurrentManagers = async () => {
   try {
     const [currentManagers, info] = await db.query('SELECT first_name, last_name FROM employee WHERE manager_id IS NULL')
-    const managerNames = currentManagers.map(name => `${name.first_name} ${name.last_name}`)
+    const managerNames = currentManagers.map(name => `${name.first_name}`)
     managerNames.unshift('No Manager')
     return managerNames;
   } catch (err) {
@@ -292,7 +294,7 @@ const getListOfCurrentManagers = async () => {
 const getListOfCurrentEmployees = async () => {
   try {
     const [results, info] = await db.query('SELECT first_name, last_name FROM employee')
-    const employeeNames = results.map(name => `${name.first_name} ${name.last_name}`)
+    const employeeNames = results.map(name => `${name.first_name}`)
     return employeeNames
   } catch (err) {
     console.error(err)
