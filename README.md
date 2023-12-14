@@ -5,6 +5,7 @@ The **Employee Tracker Application** is a command-line tool designed to manage e
 ## Important Links
   **GitHub Repo**
   - https://github.com/Evan8383/sql-employee-tracker
+
   **Submission Links**
   - https://watch.screencastify.com/v/DxG0hQsJ2A2mEERCGJqo
 
